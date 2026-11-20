@@ -30,15 +30,10 @@
   <!-- Top Header -->
   <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur border-b border-slate-800">
     <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight flex items-center gap-2">
-          <span>🍻 CityU Gathering</span>
-          <span id="dbStatusDot" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400" title="Local Demo Mode"></span>
-        </h1>
-      </div>
-      <button onclick="openSettings()" class="btn-tap px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700">
-        ⚙️ 設定
-      </button>
+      <h1 class="text-lg font-bold tracking-tight flex items-center gap-2">
+        <span>🍻 CityU Gathering</span>
+        <span id="dbStatusDot" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow shadow-emerald-400/50" title="即時同步中"></span>
+      </h1>
     </div>
 
     <!-- Main Tabs -->
@@ -55,12 +50,6 @@
   <!-- Main Container -->
   <main class="max-w-lg mx-auto px-4 pt-4 space-y-4">
 
-    <!-- Demo Banner (Hidden when Firebase connected) -->
-    <div id="demoBanner" class="px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
-      <span>⚡ 單機預覽模式（撳右上 ⚙️ 貼 Firebase URL 即時同步）</span>
-      <button onclick="clearAllVotes()" class="underline font-semibold ml-2 shrink-0">清空範例</button>
-    </div>
-
     <!-- ================= TAB 1: VOTE ================= -->
     <section id="viewVote" class="space-y-4">
 
@@ -68,7 +57,7 @@
       <div class="card p-4 space-y-4">
         <div>
           <label class="block text-sm font-bold text-slate-200 mb-2">👤 你個名</label>
-          <input id="inputName" type="text" placeholder="例如：Louis / 阿明"
+          <input id="inputName" type="text" maxlength="25" placeholder="例如：Louis / 阿明"
             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" />
         </div>
 
@@ -116,7 +105,7 @@
 
         <!-- Others Specify Input -->
         <div id="otherVenueBox" class="hidden pt-1">
-          <input id="inputOtherVenue" type="text" placeholder="請註明建議場地（例如：大美督 BBQ / 邊間 Party Room）"
+          <input id="inputOtherVenue" type="text" maxlength="60" placeholder="請註明建議場地（例如：大美督 BBQ / 邊間 Party Room）"
             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-orange-500/60 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-orange-400" />
         </div>
       </div>
@@ -138,7 +127,7 @@
 
       <!-- Optional Note -->
       <div class="card p-4">
-        <input id="inputNote" type="text" placeholder="💬 備註（選填：如唔食牛 / 揸車 / 8點先到）"
+        <input id="inputNote" type="text" maxlength="100" placeholder="💬 備註（選填：如唔食牛 / 揸車 / 8點先到）"
           class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-orange-500" />
       </div>
 
@@ -195,54 +184,12 @@
     </section>
   </main>
 
-  <!-- ================= SETTINGS MODAL ================= -->
-  <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="card w-full max-w-md p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
-        <h2 class="text-base font-bold">⚙️ Host 管理設定</h2>
-        <button onclick="closeSettings()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
-      </div>
-
-      <!-- Firebase DB Input -->
-      <div class="space-y-1.5">
-        <label class="block text-xs font-bold text-slate-300">🔥 Firebase Realtime Database URL</label>
-        <input id="inputFirebaseUrl" type="url" placeholder="https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app"
-          class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" />
-        <p class="text-[11px] text-slate-400">貼上後撳儲存，再用「複製投票 Link」send 落 Group 就會全自動連線。</p>
-      </div>
-
-      <!-- Custom Venues Manager -->
-      <div class="space-y-2 pt-2 border-t border-slate-800">
-        <label class="block text-xs font-bold text-slate-300">📍 管理場地選項（Others 會自動固定喺最底）</label>
-        <div id="settingsVenueList" class="space-y-1.5"></div>
-        <div class="flex gap-2 pt-1">
-          <input id="inputNewVenue" type="text" placeholder="新增場地名稱..."
-            class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white" />
-          <button onclick="addVenueOption()" class="btn-tap px-3 py-2 rounded-xl bg-slate-700 text-xs font-bold">+ 新增</button>
-        </div>
-      </div>
-
-      <!-- Danger Zone -->
-      <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
-        <button onclick="clearAllVotes()" class="text-xs text-rose-400 underline">🗑️ 清空所有投票數據</button>
-        <div class="flex gap-2">
-          <button onclick="closeSettings()" class="px-3.5 py-2 rounded-xl bg-slate-800 text-xs font-bold">取消</button>
-          <button onclick="saveSettings()" class="btn-tap px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold">儲存設定</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-full bg-slate-800 border border-slate-600 text-xs font-bold text-white shadow-2xl"></div>
 
   <script>
-    // =========================================================
-    // 1. 可直接喺度填寫你條 Firebase URL（或者喺網頁右上角 ⚙️ 貼入）
-    // =========================================================
-    const DEFAULT_FIREBASE_URL = "https://console.firebase.google.com/project/cityu-gathering/database/cityu-gathering-default-rtdb/data/~2F";
-
-    const STORAGE_PREFIX = "cityu_gathering_v5";
+    const FIREBASE_URL = "https://cityu-gathering-default-rtdb.asia-southeast1.firebasedatabase.app";
+    const STORAGE_PREFIX = "cityu_gathering_prod_v1";
 
     const FOOD_OPTIONS = [
       { id: "bbq", label: "🔥 燒嘢食" },
@@ -251,7 +198,7 @@
       { id: "any", label: "🍺 無所謂" }
     ];
 
-    const DEFAULT_VENUES = [
+    const VENUES = [
       "Louis 會所 2/F",
       "Louis 會所 28/F"
     ];
@@ -274,40 +221,11 @@
       { id: "2026-12-20", label: "12/20", dow: "日" }
     ];
 
-    const DEMO_VOTES = {
-      "louis": {
-        name: "Louis",
-        adults: 2,
-        kids: 0,
-        food: "both",
-        venues: ["Louis 會所 2/F", "Louis 會所 28/F"],
-        otherVenue: "",
-        dates: { "2026-11-28": 2, "2026-12-05": 2, "2026-12-12": 1 },
-        note: "主場隨時 Ready",
-        updatedAt: Date.now() - 3600000
-      },
-      "阿明": {
-        name: "阿明",
-        adults: 2,
-        kids: 1,
-        food: "bbq",
-        venues: ["Louis 會所 28/F", "Others"],
-        otherVenue: "大美督 BBQ",
-        dates: { "2026-11-28": 1, "2026-12-05": 2 },
-        note: "揸車嚟",
-        updatedAt: Date.now() - 1800000
-      }
-    };
-
-    // App State
-    let firebaseUrl = "";
-    let venues = [...DEFAULT_VENUES];
     let votes = {};
     let sseSource = null;
     let pollTimer = null;
     let expandedDateId = null;
 
-    // Current User Form State
     let form = {
       name: "",
       adults: 1,
@@ -315,33 +233,11 @@
       food: "both",
       venues: ["Louis 會所 2/F"],
       otherVenue: "",
-      dates: {}, // { '2026-11-28': 1 (available) | 2 (preferred) }
+      dates: {},
       note: ""
     };
 
-    // =========================================================
-    // Initialization
-    // =========================================================
     function init() {
-      const params = new URLSearchParams(window.location.search);
-      const urlDb = params.get("db");
-      const savedDb = localStorage.getItem(`${STORAGE_PREFIX}_db`);
-      firebaseUrl = cleanFirebaseUrl(urlDb || DEFAULT_FIREBASE_URL || savedDb || "");
-
-      if (urlDb) {
-        localStorage.setItem(`${STORAGE_PREFIX}_db`, firebaseUrl);
-      }
-
-      // Load saved venues (local fallback)
-      const savedVenues = localStorage.getItem(`${STORAGE_PREFIX}_venues`);
-      if (savedVenues) {
-        try {
-          const parsed = JSON.parse(savedVenues);
-          if (Array.isArray(parsed) && parsed.length > 0) venues = parsed;
-        } catch (e) {}
-      }
-
-      // Load user's previous draft/submission
       const savedMe = localStorage.getItem(`${STORAGE_PREFIX}_myform`);
       if (savedMe) {
         try {
@@ -354,52 +250,14 @@
       renderFoodOptions();
       renderVenueOptions();
       renderDateOptions();
-
-      if (firebaseUrl) {
-        connectFirebase();
-      } else {
-        loadLocalVotes();
-      }
-    }
-
-    function cleanFirebaseUrl(url) {
-      if (!url) return "";
-      let u = url.trim().replace(/\/+$/, "");
-      if (u.endsWith(".json")) {
-        u = u.substring(0, u.lastIndexOf("/"));
-      }
-      return u;
-    }
-
-    // =========================================================
-    // Data Layer (Firebase Realtime DB + Local Fallback)
-    // =========================================================
-    function loadLocalVotes() {
-      updateDbIndicator(false);
-      const raw = localStorage.getItem(`${STORAGE_PREFIX}_votes`);
-      if (raw) {
-        try {
-          votes = JSON.parse(raw) || {};
-        } catch (e) {
-          votes = { ...DEMO_VOTES };
-        }
-      } else {
-        votes = { ...DEMO_VOTES };
-        localStorage.setItem(`${STORAGE_PREFIX}_votes`, JSON.stringify(votes));
-      }
-      updateAllStats();
+      connectFirebase();
     }
 
     async function connectFirebase() {
-      updateDbIndicator(true);
-      if (sseSource) { sseSource.close(); sseSource = null; }
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-
       await fetchFirebaseSnapshot();
 
-      // Real-time Server-Sent Events stream
       try {
-        sseSource = new EventSource(`${firebaseUrl}/gathering.json`);
+        sseSource = new EventSource(`${FIREBASE_URL}/gathering/votes.json`);
         sseSource.addEventListener("put", () => fetchFirebaseSnapshot());
         sseSource.addEventListener("patch", () => fetchFirebaseSnapshot());
         sseSource.onerror = () => {
@@ -413,43 +271,33 @@
     }
 
     async function fetchFirebaseSnapshot() {
-      if (!firebaseUrl) return;
       try {
-        const res = await fetch(`${firebaseUrl}/gathering.json`);
+        const res = await fetch(`${FIREBASE_URL}/gathering/votes.json`);
         if (!res.ok) throw new Error("Fetch failed");
         const data = await res.json();
-        votes = (data && data.votes) ? data.votes : {};
-        if (data && Array.isArray(data.venues) && data.venues.length > 0) {
-          venues = data.venues;
-          renderVenueOptions();
-        }
+        votes = data || {};
+        setOnlineStatus(true);
         updateAllStats();
       } catch (err) {
-        console.warn("Firebase sync error:", err);
+        setOnlineStatus(false);
       }
     }
 
-    function updateDbIndicator(isCloud) {
+    function setOnlineStatus(ok) {
       const dot = document.getElementById("dbStatusDot");
-      const banner = document.getElementById("demoBanner");
-      if (isCloud) {
+      if (ok) {
         dot.className = "inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow shadow-emerald-400/50";
-        dot.title = "已連線 Firebase 即時同步";
-        banner.classList.add("hidden");
+        dot.title = "即時同步中";
       } else {
-        dot.className = "inline-block w-2.5 h-2.5 rounded-full bg-amber-400";
-        dot.title = "單機預覽模式";
-        banner.classList.remove("hidden");
+        dot.className = "inline-block w-2.5 h-2.5 rounded-full bg-rose-500";
+        dot.title = "連線異常";
       }
     }
 
     function normalizeKey(name) {
-      return name.trim().toLowerCase().replace(/[.#$\[\]\/]/g, "_");
+      return name.trim().toLowerCase().replace(/[.#$\[\]\/]/g, "_").slice(0, 30);
     }
 
-    // =========================================================
-    // Form UI Rendering & Interactions
-    // =========================================================
     function hydrateFormInputs() {
       document.getElementById("inputName").value = form.name || "";
       document.getElementById("adultsVal").textContent = form.adults;
@@ -490,7 +338,7 @@
     }
 
     function renderVenueOptions() {
-      const allVenues = [...venues, OTHER_VENUE_KEY];
+      const allVenues = [...VENUES, OTHER_VENUE_KEY];
       const container = document.getElementById("venueList");
       container.innerHTML = allVenues.map(v => {
         const active = form.venues.includes(v);
@@ -559,13 +407,10 @@
       renderDateOptions();
     }
 
-    // =========================================================
-    // Submit Vote
-    // =========================================================
     async function submitVote() {
-      const name = document.getElementById("inputName").value.trim();
-      const otherText = document.getElementById("inputOtherVenue").value.trim();
-      const note = document.getElementById("inputNote").value.trim();
+      const name = document.getElementById("inputName").value.trim().slice(0, 25);
+      const otherText = document.getElementById("inputOtherVenue").value.trim().slice(0, 60);
+      const note = document.getElementById("inputNote").value.trim().slice(0, 100);
 
       if (!name) {
         showToast("⚠️ 請先填寫你個名！");
@@ -605,33 +450,22 @@
         updatedAt: Date.now()
       };
 
-      if (firebaseUrl) {
-        try {
-          await fetch(`${firebaseUrl}/gathering/votes/${encodeURIComponent(voterKey)}.json`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-          await fetchFirebaseSnapshot();
-          showToast("🎉 投票已即時同步！");
-        } catch (err) {
-          showToast("❌ 連線失敗，請檢查 Firebase URL");
-          return;
-        }
-      } else {
-        votes[voterKey] = payload;
-        localStorage.setItem(`${STORAGE_PREFIX}_votes`, JSON.stringify(votes));
-        updateAllStats();
-        showToast("✅ 已儲存投票！");
+      try {
+        const res = await fetch(`${FIREBASE_URL}/gathering/votes/${encodeURIComponent(voterKey)}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Write rejected");
+        await fetchFirebaseSnapshot();
+        showToast("🎉 投票已即時同步！");
+        switchTab("stats");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        showToast("❌ 送出失敗，請稍後再試");
       }
-
-      switchTab("stats");
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // =========================================================
-    // Stats & Leaderboard Calculation
-    // =========================================================
     function updateAllStats() {
       const voterList = Object.entries(votes).map(([key, v]) => ({ key, ...v }));
       document.getElementById("voteCountBadge").textContent = voterList.length;
@@ -639,12 +473,8 @@
       const totalAdults = voterList.reduce((s, v) => s + (Number(v.adults) || 1), 0);
       const totalKids = voterList.reduce((s, v) => s + (Number(v.kids) || 0), 0);
 
-      // 1. Calculate Dates
       const dateStats = DATE_OPTIONS.map(d => {
-        let count = 0;
-        let stars = 0;
-        let adults = 0;
-        let kids = 0;
+        let count = 0, stars = 0, adults = 0, kids = 0;
         const people = [];
 
         voterList.forEach(v => {
@@ -660,7 +490,6 @@
           }
         });
 
-        // Score favors more voters first, then preferred stars
         const score = count * 100 + stars * 15 + (adults + kids);
         return { ...d, count, stars, adults, kids, totalHead: adults + kids, people, score };
       });
@@ -668,12 +497,9 @@
       const sortedDates = [...dateStats].sort((a, b) => b.score - a.score);
       const topDate = sortedDates[0];
 
-      // 2. Calculate Venues
-      const allVenueKeys = [...venues, OTHER_VENUE_KEY];
+      const allVenueKeys = [...VENUES, OTHER_VENUE_KEY];
       const venueStats = allVenueKeys.map(vName => {
-        let count = 0;
-        let adults = 0;
-        let kids = 0;
+        let count = 0, adults = 0, kids = 0;
         const suggestions = [];
 
         voterList.forEach(v => {
@@ -689,13 +515,11 @@
         return { name: vName, count, adults, kids, totalHead: adults + kids, suggestions };
       }).sort((a, b) => b.count - a.count);
 
-      // 3. Calculate Foods
       const foodStats = FOOD_OPTIONS.map(f => {
         const count = voterList.filter(v => v.food === f.id).length;
         return { ...f, count };
       }).sort((a, b) => b.count - a.count);
 
-      // Render Top Combo Card
       const comboEl = document.getElementById("bestComboCard");
       if (voterList.length === 0) {
         comboEl.innerHTML = `<div class="text-sm text-slate-400 text-center py-2">暫時未有人投票，快啲做第一個！</div>`;
@@ -716,7 +540,6 @@
         `;
       }
 
-      // Render Dates List (only dates with >=1 vote, or top 6 if empty)
       const activeDates = sortedDates.filter(d => d.count > 0);
       const displayDates = activeDates.length > 0 ? activeDates : DATE_OPTIONS.slice(0, 6).map(d => ({ ...d, count: 0, stars: 0, adults: 0, kids: 0, totalHead: 0, people: [] }));
       const maxDateVotes = Math.max(1, voterList.length);
@@ -750,7 +573,6 @@
         `;
       }).join("");
 
-      // Render Venues List
       document.getElementById("statsVenues").innerHTML = venueStats.map(v => {
         const pct = voterList.length ? Math.round((v.count / voterList.length) * 100) : 0;
         const suggHtml = v.suggestions.length > 0
@@ -770,7 +592,6 @@
         `;
       }).join("");
 
-      // Render Food List
       document.getElementById("statsFoods").innerHTML = foodStats.map(f => {
         const pct = voterList.length ? Math.round((f.count / voterList.length) * 100) : 0;
         return `
@@ -784,7 +605,6 @@
         `;
       }).join("");
 
-      // Render Voters List
       if (voterList.length === 0) {
         document.getElementById("statsVoters").innerHTML = `<div class="text-xs text-slate-500">暫無記錄</div>`;
       } else {
@@ -804,7 +624,6 @@
                   ${v.otherVenue ? `<div class="text-xs text-amber-300">📍 建議場地：${escapeHtml(v.otherVenue)}</div>` : ""}
                   ${v.note ? `<div class="text-xs text-slate-400">💬 ${escapeHtml(v.note)}</div>` : ""}
                 </div>
-                <button onclick="deleteVoter('${v.key.replace(/'/g, "\\'")}')" title="刪除此票" class="text-slate-500 hover:text-rose-400 text-sm px-1.5">✕</button>
               </div>
             `;
           }).join("");
@@ -816,22 +635,6 @@
       updateAllStats();
     }
 
-    async function deleteVoter(voterKey) {
-      if (!confirm("確定刪除呢張選票？")) return;
-      if (firebaseUrl) {
-        await fetch(`${firebaseUrl}/gathering/votes/${encodeURIComponent(voterKey)}.json`, { method: "DELETE" });
-        await fetchFirebaseSnapshot();
-      } else {
-        delete votes[voterKey];
-        localStorage.setItem(`${STORAGE_PREFIX}_votes`, JSON.stringify(votes));
-        updateAllStats();
-      }
-      showToast("🗑️ 已刪除選票");
-    }
-
-    // =========================================================
-    // Tabs, Share & Settings Modal
-    // =========================================================
     function switchTab(tab) {
       const isVote = tab === "vote";
       document.getElementById("viewVote").classList.toggle("hidden", !isVote);
@@ -848,15 +651,10 @@
       if (!isVote) updateAllStats();
     }
 
-    function buildShareUrl() {
-      const base = window.location.origin + window.location.pathname;
-      return firebaseUrl ? `${base}?db=${encodeURIComponent(firebaseUrl)}` : base;
-    }
-
     function copyShareLink() {
-      const url = buildShareUrl();
+      const url = window.location.origin + window.location.pathname;
       navigator.clipboard.writeText(url).then(() => {
-        showToast("🔗 投票 Link 已複製！直接貼落 WhatsApp 即可");
+        showToast("🔗 投票 Link 已複製！");
       });
     }
 
@@ -869,7 +667,6 @@
       const totalAdults = voterList.reduce((s, v) => s + (Number(v.adults) || 1), 0);
       const totalKids = voterList.reduce((s, v) => s + (Number(v.kids) || 0), 0);
 
-      // Top 3 dates
       const topDates = DATE_OPTIONS.map(d => {
         let count = 0, head = 0;
         voterList.forEach(v => {
@@ -881,6 +678,7 @@
         return { ...d, count, head };
       }).filter(d => d.count > 0).sort((a, b) => b.count - a.count).slice(0, 3);
 
+      const shareUrl = window.location.origin + window.location.pathname;
       const lines = [
         `🍻 *CityU 兄弟 Gathering 即時戰況*`,
         `已投票：${voterList.length} 伙（${totalAdults}大 ${totalKids}細 · 共 ${totalAdults + totalKids} 人）`,
@@ -890,7 +688,7 @@
         ``,
         `🅿️ Louis 會所時租 Car Park 約 $29/hr`,
         `🗳️ 未投快手撳入嚟投：`,
-        buildShareUrl()
+        shareUrl
       ];
 
       navigator.clipboard.writeText(lines.join("\n")).then(() => {
@@ -898,91 +696,6 @@
       });
     }
 
-    function openSettings() {
-      document.getElementById("inputFirebaseUrl").value = firebaseUrl;
-      renderSettingsVenues();
-      document.getElementById("settingsModal").classList.remove("hidden");
-    }
-
-    function closeSettings() {
-      document.getElementById("settingsModal").classList.add("hidden");
-    }
-
-    function renderSettingsVenues() {
-      const container = document.getElementById("settingsVenueList");
-      container.innerHTML = venues.map((v, idx) => `
-        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-          <span>${escapeHtml(v)}</span>
-          <button onclick="removeVenueOption(${idx})" class="text-rose-400 font-bold px-1">刪除</button>
-        </div>
-      `).join("");
-    }
-
-    function addVenueOption() {
-      const inp = document.getElementById("inputNewVenue");
-      const val = inp.value.trim();
-      if (!val || val.toLowerCase() === "others") return;
-      if (!venues.includes(val)) {
-        venues.push(val);
-        inp.value = "";
-        renderSettingsVenues();
-      }
-    }
-
-    function removeVenueOption(idx) {
-      if (venues.length <= 1) {
-        showToast("至少保留一個預設場地");
-        return;
-      }
-      venues.splice(idx, 1);
-      renderSettingsVenues();
-    }
-
-    async function saveSettings() {
-      const newUrl = cleanFirebaseUrl(document.getElementById("inputFirebaseUrl").value);
-      firebaseUrl = newUrl;
-
-      localStorage.setItem(`${STORAGE_PREFIX}_db`, firebaseUrl);
-      localStorage.setItem(`${STORAGE_PREFIX}_venues`, JSON.stringify(venues));
-
-      renderVenueOptions();
-
-      if (firebaseUrl) {
-        try {
-          await fetch(`${firebaseUrl}/gathering/venues.json`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(venues)
-          });
-          await connectFirebase();
-          showToast("🔥 已連通 Firebase 並儲存設定！");
-        } catch (e) {
-          showToast("⚠️ Firebase 連線失敗，請檢查 URL 同 Test Mode 權限");
-        }
-      } else {
-        loadLocalVotes();
-        showToast("✅ 已儲存本地設定");
-      }
-      closeSettings();
-    }
-
-    async function clearAllVotes() {
-      if (!confirm("確定要清空晒所有投票紀錄？（清空後即可正式開始投票）")) return;
-      if (firebaseUrl) {
-        await fetch(`${firebaseUrl}/gathering/votes.json`, { method: "DELETE" });
-        await fetchFirebaseSnapshot();
-      } else {
-        votes = {};
-        localStorage.setItem(`${STORAGE_PREFIX}_votes`, JSON.stringify(votes));
-        updateAllStats();
-      }
-      closeSettings();
-      showToast("🧹 已清空所有投票！");
-    }
-
-    // =========================================================
-    // Helpers
-    // =========================================================
     function escapeHtml(str) {
       return String(str || "")
         .replace(/&/g, "&amp;")
