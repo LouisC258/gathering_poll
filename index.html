@@ -53,12 +53,19 @@
     <!-- ================= TAB 1: VOTE ================= -->
     <section id="viewVote" class="space-y-4">
 
-      <!-- 0. Name & Headcount -->
+      <!-- 0. Name (First Name + Surname) & Headcount -->
       <div class="card p-4 space-y-4">
-        <div>
-          <label class="block text-sm font-bold text-slate-200 mb-2">👤 你個名</label>
-          <input id="inputName" type="text" maxlength="25" placeholder="例如：Louis / 阿明"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" />
+        <div class="grid grid-cols-5 gap-2.5">
+          <div class="col-span-3">
+            <label class="block text-sm font-bold text-slate-200 mb-2">👤 英文名 / 稱呼</label>
+            <input id="inputFirstName" type="text" maxlength="14" placeholder="例：Daniel / 阿明"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-orange-500" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-slate-200 mb-2">🏷️ 姓氏</label>
+            <input id="inputLastName" type="text" maxlength="10" placeholder="例：Leung / 陳"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-orange-500" />
+          </div>
         </div>
 
         <!-- Adults & Kids Counter -->
@@ -189,7 +196,7 @@
 
   <script>
     const FIREBASE_URL = "https://cityu-gathering-default-rtdb.asia-southeast1.firebasedatabase.app";
-    const STORAGE_PREFIX = "cityu_gathering_prod_v1";
+    const STORAGE_PREFIX = "cityu_gathering_prod_v2";
 
     const FOOD_OPTIONS = [
       { id: "bbq", label: "🔥 燒嘢食" },
@@ -227,6 +234,8 @@
     let expandedDateId = null;
 
     let form = {
+      firstName: "",
+      lastName: "",
       name: "",
       adults: 1,
       kids: 0,
@@ -294,12 +303,13 @@
       }
     }
 
-    function normalizeKey(name) {
-      return name.trim().toLowerCase().replace(/[.#$\[\]\/]/g, "_").slice(0, 30);
+    function normalizeKey(str) {
+      return str.trim().toLowerCase().replace(/\s+/g, "_").replace(/[.#$\[\]\/]/g, "_").slice(0, 30);
     }
 
     function hydrateFormInputs() {
-      document.getElementById("inputName").value = form.name || "";
+      document.getElementById("inputFirstName").value = form.firstName || "";
+      document.getElementById("inputLastName").value = form.lastName || "";
       document.getElementById("adultsVal").textContent = form.adults;
       document.getElementById("kidsVal").textContent = form.kids;
       document.getElementById("inputOtherVenue").value = form.otherVenue || "";
@@ -408,13 +418,19 @@
     }
 
     async function submitVote() {
-      const name = document.getElementById("inputName").value.trim().slice(0, 25);
+      const firstName = document.getElementById("inputFirstName").value.trim().slice(0, 14);
+      const lastName = document.getElementById("inputLastName").value.trim().slice(0, 10);
       const otherText = document.getElementById("inputOtherVenue").value.trim().slice(0, 60);
       const note = document.getElementById("inputNote").value.trim().slice(0, 100);
 
-      if (!name) {
-        showToast("⚠️ 請先填寫你個名！");
-        document.getElementById("inputName").focus();
+      if (!firstName) {
+        showToast("⚠️ 請先填寫你個英文名 / 稱呼！");
+        document.getElementById("inputFirstName").focus();
+        return;
+      }
+      if (!lastName) {
+        showToast("⚠️ 驚撞英文名，請填埋姓氏！");
+        document.getElementById("inputLastName").focus();
         return;
       }
       if (form.venues.length === 0) {
@@ -431,15 +447,21 @@
         return;
       }
 
-      form.name = name;
+      const fullName = `${firstName} ${lastName}`.slice(0, 25);
+
+      form.firstName = firstName;
+      form.lastName = lastName;
+      form.name = fullName;
       form.otherVenue = form.venues.includes(OTHER_VENUE_KEY) ? otherText : "";
       form.note = note;
 
       localStorage.setItem(`${STORAGE_PREFIX}_myform`, JSON.stringify(form));
 
-      const voterKey = normalizeKey(name);
+      const voterKey = normalizeKey(`${firstName}_${lastName}`);
       const payload = {
-        name: form.name,
+        name: fullName,
+        firstName: firstName,
+        lastName: lastName,
         adults: form.adults,
         kids: form.kids,
         food: form.food,
